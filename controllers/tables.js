@@ -3,13 +3,24 @@ import Table from "../models/tableModel.js"
 export const getAllTables = async (req, res) => {
     try {
         const tables = await Table.find()
+        if(tables.length == 0){
+            res.status(200).json({
+                message: "No data found",
+                status: "200",
+                data_length: tables.length,
+                method: req.method
+            })
+        }
         res.status(200).json({
+            status: 200,
             message: "Successfully get all tables",
-            tables: tables
+            data_length: tables.length,
+            tables: tables,
+            method: req.method
         })
-        console.log(tables)
     } catch (error) {
         console.log(error)
+        res.status(500).send({message: "Failed to get all tables", error});
     }
 }
 

@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import express from 'express';
 import router from './routes/index.js';
 import cors from 'cors';
+import bodyParser from 'body-parser';
 dotenv.config()
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,8 +15,10 @@ app.use(cors(
         allowedHeaders: ['Content-Type', 'Authorization', 'authorization']
     }
 ))
-app.use(express.json());
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json());
 app.get('/', (req, res) => {
     res.send("Hello World")
 });
