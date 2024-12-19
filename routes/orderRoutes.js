@@ -3,7 +3,7 @@ import { createOrder, deleteOrder, getAllOrders, getOrderByTable, getTotalIncome
 const orderRouter = express.Router()
 
 orderRouter.get('/orders', getAllOrders)
-orderRouter.get('/order-table', getOrderByTable)
+orderRouter.get('/order-table/:tableId', getOrderByTable)
 orderRouter.get('/total-income', getTotalIncome)
 orderRouter.post('/create-order', createOrder)
 orderRouter.put('/update-order', updateOrderStatus)
