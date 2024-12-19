@@ -1,4 +1,5 @@
 import Order from "../models/orderModel.js";
+import Table from "../models/tableModel.js";
 
 export const createOrder = async(req, res) => {
     try {
@@ -16,6 +17,11 @@ export const createOrder = async(req, res) => {
             customerName,
             orders,
             totalAmount,
+        });
+        
+        await Table.findByIdAndUpdate(table, {
+            status: 'Occupied',
+            currentOrder: newOrder._id
         });
 
         return res.status(201).json({
@@ -72,12 +78,19 @@ export const updateOrderStatus = async (req, res) => {
         console.log(updatedOrder)
     
         if (!updatedOrder) {
-            return res.status(404).json({ message: "Pesanan tidak ditemukan" });
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        if (status === "Paid") {
+            await Table.findByIdAndUpdate(updatedOrder.table, {
+                status: "Available",
+                currentOrder: null,
+            });
         }
     
-        return res.status(200).json({ message: "Status berhasil diperbarui", data: updatedOrder });
+        return res.status(200).json({ message: "Successfully update order", data: updatedOrder });
     } catch (error) {
-        return res.status(500).json({ message: "Gagal memperbarui status pesanan", error });
+        return res.status(500).json({ message: "Failed update order", error });
     }
 };
 
