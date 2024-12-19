@@ -77,7 +77,7 @@ export const getAllOrders = async(req, res) => {
 export const getOrderByTable = async(req, res) => {
     try {
         const { tableId } = req.params;
-        const order = await Order.find({table: id})
+        const order = await Order.find({table: tableId})
 
         if(data.length === 0){
             return res.status(200).json({
