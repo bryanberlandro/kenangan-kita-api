@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors(
     {
         origin: ['http://localhost:5173', 'https://kenangan-kita-api.vercel.app/'],
-        methods: ["POST", "GET", "PATCH", "DELETE"],
+        methods: ["POST", "GET", "PUT", "DELETE"],
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization', 'authorization']
     }
