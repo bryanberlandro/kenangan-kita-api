@@ -5,6 +5,16 @@ export const createOrder = async(req, res) => {
     try {
         const { table, customerName, orders, totalAmount} = req.body;
 
+        const existingTable = await Table.findById(table);
+        if (!existingTable) {
+            return res.status(404).json({ message: "Tabel tidak ditemukan" });
+        }
+
+        // Periksa apakah tabel sudah occupied
+        if (existingTable.status === 'Occupied') {
+            return res.status(400).json({ message: "Tabel sudah ditempati" });
+        }
+
         if(!table || !customerName || !orders || !totalAmount){
             return res.status(400).json({
                 status: 400,
@@ -55,6 +65,32 @@ export const getAllOrders = async(req, res) => {
             message: "Sorry, you don't have any order data yet...",
             data: orders,
             data_length: orders.length
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Failed to get all orders",
+            error
+        })
+    }
+}
+
+export const getOrderByTable = async(req, res) => {
+    try {
+        const { id } = req.query;
+        const order = await Order.find({table: id})
+
+        if(data.length === 0){
+            return res.status(200).json({
+                status: 200,
+                message: "Sorry, you don't have any order data yet...",
+                data: order,
+            })
+        }
+
+        res.status(200).json({
+            status: 200,
+            message: "Successfully get all orders",
+            data: order,
         })
     } catch (error) {
         return res.status(500).json({
