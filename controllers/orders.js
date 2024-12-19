@@ -79,7 +79,7 @@ export const getOrderByTable = async(req, res) => {
         const { tableId } = req.params;
         const order = await Order.find({table: tableId})
 
-        if(data.length === 0){
+        if(order.length === 0){
             return res.status(200).json({
                 status: 200,
                 message: "Sorry, you don't have any order data yet...",
