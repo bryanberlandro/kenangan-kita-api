@@ -28,57 +28,60 @@ export const getAllReviews = async(req, res) => {
     }
 }
 
-export const createReview = async(req, res) => {
+export const createReview = async (req, res) => {
     try {
-        const { menuId, rating } = req.body;
+        const { menuId, rating, ...otherData } = req.body;
 
-        if(!rating.taste || !rating.price || !rating.presentation){
+        if (!menuId || !rating || !rating.taste || !rating.price || !rating.presentation) {
             return res.status(400).json({
                 status: 400,
-                message: "please fill in all these reviews"
-            })
+                message: "Please provide menuId and all required rating fields (taste, price, presentation).",
+            });
+        }
+
+        const menu = await Menu.findById(menuId);
+        if (!menu) {
+            return res.status(404).json({
+                status: 404,
+                message: `Menu with id ${menuId} not found.`,
+            });
         }
 
         const newReview = new Review({
             menuId,
             rating,
-            ...req.body
-        })
+            ...otherData,
+        });
+        await newReview.save();
 
-        await newReview.save()
-
-        const menu = await Menu.findById(menuId);
-
-        // Tambahkan review ke array reviews dalam menu
         menu.reviews.push(newReview._id);
 
-        // Perbarui rating menu berdasarkan review
         const reviews = await Review.find({ menuId });
-        const totalRasa = reviews.reduce((acc, review) => acc + review.rating.taste, 0);
-        const totalHarga = reviews.reduce((acc, review) => acc + review.rating.price, 0);
-        const totalPenyajian = reviews.reduce((acc, review) => acc + review.rating.presentation, 0);
+        const totalTaste = reviews.reduce((acc, review) => acc + review.rating.taste, 0);
+        const totalPrice = reviews.reduce((acc, review) => acc + review.rating.price, 0);
+        const totalPresentation = reviews.reduce((acc, review) => acc + review.rating.presentation, 0);
 
-        menu.tasteRating = totalRasa / reviews.length;
-        menu.priceRating = totalHarga / reviews.length;
-        menu.presentationRating = totalPenyajian / reviews.length;
+        menu.tasteRating = totalTaste / reviews.length;
+        menu.priceRating = totalPrice / reviews.length;
+        menu.presentationRating = totalPresentation / reviews.length;
         menu.totalReview = reviews.length;
 
-        // Hitung total penilaian menggunakan fuzzy
-        menu.calculateFuzzyRating();
+        if (menu.calculateFuzzyRating) {
+            menu.calculateFuzzyRating();
+        }
 
-        // Simpan perubahan menu ke database
         await menu.save();
 
         res.status(201).json({
             status: 201,
-            message: "Successfully created review",
-            data: newReview
-        })
+            message: "Successfully created review and updated menu ratings.",
+            data: newReview,
+        });
     } catch (error) {
         res.status(500).json({
             status: 500,
-            message: "Failed to create review",
-            error: error.message
-        })
+            message: "Failed to create review.",
+            error: error.message,
+        });
     }
-}
+};
