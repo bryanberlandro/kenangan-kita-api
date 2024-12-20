@@ -28,7 +28,7 @@ export const getAllReviews = async(req, res) => {
     }
 }
 
-xport const createReviews = async (req, res) => {
+export const createReview = async (req, res) => {
     try {
         const { menuId, reviews } = req.body;
 
